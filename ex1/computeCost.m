@@ -13,10 +13,20 @@ J = 0;
 % Instructions: Compute the cost of a particular choice of theta
 %               You should set J to the cost.
 
+for i = 1:m,
+    h_i = predict(X(i, :), theta);
+    J = J + (h_i - y(i)) ^ 2;
+end
 
-
-
+J = J / (2 * m)
 
 % =========================================================================
+
+end
+
+
+function h = predict(x, theta)
+
+h = x * theta;
 
 end
