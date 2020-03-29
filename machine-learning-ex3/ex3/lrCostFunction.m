@@ -36,17 +36,24 @@ grad = zeros(size(theta));
 %           grad = grad + YOUR_CODE_HERE (using the temp variable)
 %
 
+h = predict(X, theta);
 
+J = -1 * y' * log(h) - (1 - y)' * log(1 - h);
+J = 1/m * J;
+J = J + lambda / (2 * m) * theta(2:end)' * theta(2:end);
 
-
-
-
-
-
-
+grad = grad + X' * (h - y);
+grad = 1/m * grad;
+grad = grad + lambda / m * [0; theta(2:end)];
 
 % =============================================================
 
 grad = grad(:);
 
+end
+
+
+
+function h = predict(X, theta)
+    h = sigmoid(X * theta);
 end
