@@ -20,8 +20,8 @@ W = zeros(L_out, 1 + L_in);
 %
 
 
-epsiloninit = 0.12;
-W = rand(Lout, 1 + Lin)*2*epsiloninit−epsiloninit;
+epsilon_init = 0.12;
+W = rand(L_out, 1 + L_in) * 2 * epsilon_init - epsilon_init;
 
 
 

@@ -67,29 +67,52 @@ function [J grad] = nnCostFunction(nn_params, ...
     for i = 1:m
         train_i_cost = 0;
 
-        # Computing prediction
-        h_i = predict(X(i, :)', Theta1, Theta2);
+        # Predict intermediate and final values
+        [a1 z2 a2 z3 h] = predict(X(i, :)', Theta1, Theta2);
 
+        # One-hot encode y(i)
+        y_i = zeros(num_labels, 1);
+        y_i(y(i)) = 1;
+
+        # Update cost function
         for k = 1:num_labels
             # Computing right value of y_k^(i)
-            y_i_k = k == y(i);
+            y_k = y_i(k);
 
             # Computing local cost
-            k_cost = -1 * y_i_k * log(h_i(k)) - (1 - y_i_k) * log(1 - h_i(k));
+            k_cost = -1 * y_k * log(h(k)) - (1 - y_k) * log(1 - h(k));
 
             # Adding to total cost
             train_i_cost += k_cost;
         end
-
         J += train_i_cost;
+
+        # Update gradients
+        # Step 1: compute difference for output layer
+        delta_3 = h - y_i;
+
+        # Step 2: compute difference for hidden layer
+        delta_2 = (Theta2' * delta_3);
+        delta_2 = delta_2(2:end);
+        delta_2 = delta_2 .* sigmoidGradient(z2);
+
+        # Step 3: compute gradient
+        Theta1_grad += delta_2 * a1';
+        Theta2_grad += delta_3 * a2';
     end
 
     J /= m;
+    Theta1_grad /= m;
+    Theta2_grad /= m;
 
     # Add regularization cost
     reg_theta_1_cost = norm(Theta1(:, 2:end), p='fro') ^ 2;
     reg_theta_2_cost = norm(Theta2(:, 2:end), p='fro') ^ 2;
     J += lambda / (2*m) * (reg_theta_1_cost + reg_theta_2_cost);
+
+    # Add regularization term to gradients
+    Theta1_grad += lambda / m * [zeros(size(Theta1, 1), 1), Theta1(:, 2:end)];
+    Theta2_grad += lambda / m * [zeros(size(Theta2, 1), 1), Theta2(:, 2:end)];
 
 
     % -------------------------------------------------------------
@@ -103,8 +126,10 @@ function [J grad] = nnCostFunction(nn_params, ...
 end
 
 
-function h = predict(x, Theta1, Theta2)
-    hidden = sigmoid(Theta1 * x);
-    hidden = [1; hidden];
-    h = sigmoid(Theta2 * hidden);
+function [a1 z2 a2 z3 h] = predict(x, Theta1, Theta2)
+    a1 = x;
+    z2 = Theta1 * x;
+    a2 = [1; sigmoid(z2)];
+    z3 = Theta2 * a2;
+    h = sigmoid(z3);
 end
