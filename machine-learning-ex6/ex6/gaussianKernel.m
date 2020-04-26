@@ -16,7 +16,9 @@ sim = 0;
 %
 %
 
-
+diff = x1 - x2;
+sim = diff' * diff;
+sim = exp(-sim / (2 * sigma^2));
 
 
 
